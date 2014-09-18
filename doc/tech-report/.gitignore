@@ -1,0 +1,10 @@
+*.bbl
+*.blg
+*.dvi
+Ü.out
+img/*.jpg
+img/*.pdf
+*.aux
+*.log
+*.out
+tech-report.pdf

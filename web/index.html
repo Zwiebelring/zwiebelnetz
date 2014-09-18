@@ -1,0 +1,469 @@
+<html>
+<head>
+<!--
+/*
+Copyright (c) 2014
+  Dario Brandes
+  Thies Johannsen
+  Paul Kröger
+  Sergej Mann
+  Roman Naumann
+  Sebastian Thobe
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification,
+are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this
+   list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
+-->
+<meta charset="utf-8">
+<title>Zwiebelnetz</title>
+  <link href="css/select2-bootstrap.css" rel="stylesheet" media="screen">
+  <link href="css/select2.css" rel="stylesheet" media="screen">
+  <link href="css/bootstrap.min.css" rel="stylesheet" media="screen">
+  <link href="css/style.css" rel="stylesheet" media="screen">
+</head>
+<body>
+
+<script type="text/x-emblem" data-template-name="application">
+%nav.navbar.navbar-inverse.navbar-fixed-top: .navbar-inner: .container-fluid
+  .navbar-header
+    %button.navbar-toggle type='button' data-toggle='collapse' data-target='#bs-example-navbar-collapse-1' 
+      %span.icon-bar
+      %span.icon-bar
+      %span.icon-bar
+    link-to "posts" class="active navbar-brand" | Zwiebelnetz
+  .collapse.navbar-collapse#bs-example-navbar-collapse-1
+    if isAuthorized
+      ul.nav.navbar-nav
+        li: link-to "posts" | News Feed
+        li: link-to "circles" | Circles
+        li: link-to "contacts" | Contacts
+        li: link-to "profiles" | Profile
+        /li: link-to "settings" | Settings
+      ul.nav.navbar-nav.navbar-right
+        li: p.navbar-text.navbar-right
+        li: button.btn.btn-sm.navbar-btn#logoutButton{action 'logout'} Logout
+    else
+      .navbar-form.navbar-right: .form-group.has-error
+        = input class='form-control' valueBinding='username' id='login-username' placeholder='Username'
+        = input type='password' class='form-control' valueBinding='password' id='login-password' placeholder='Password' action='authorize'
+        button.btn.btn-default{action 'authorize'} Login
+.container-fluid style='margin-top: 60px;': .row
+  if hasError
+    .col-md-4.col-md-offset-4
+      .alert.alert-danger style="text-align: center"
+        %strong: 'Login incorrect
+  if isAuthorized
+    .col-md-12.col-md-offset-0: .col-lg-10.col-lg-offset-1
+      outlet
+  else
+    .row: .col-md-12: .lock style='text-align: center; vertical-align: center'
+      if hasError
+        %img src="/img/lock-red.png"
+      else
+        %img src="/img/lock.png"
+</script>
+
+<script type="text/x-emblem" data-template-name="posts">
+.row: .well.well-sm: .input-group.input-group-lg
+  span.input-group-addon: span.glyphicon.glyphicon-search
+  = input class='form-control' type='text' role='search' valueBinding='search' placeholder='author:"me" circle:"Public"'
+.row: .col-md-12: .panel.panel-primary
+  .panel-heading
+    'Create a post
+  .panel-body: form.form-horizontal role='form'
+    .form-group: .col-md-10.col-md-offset-1
+      span.form-group = textarea class='form-control markdown' rows='6' valueBinding='message' placeholder='Share something'
+    .form-group: .col-md-10.col-md-offset-1
+      .form.form-inline role='form'
+        = view SecSocNet.CircleSelectView
+        //.input-group.input-group-sm.col-md-offset-1
+          //span.input-group-addon TTL
+          //Ember.Select class='form-control' content=ttl value=selectedTTL
+        button.btn.btn-primary.pull-right.form{action createPost} Post
+  .panel-footer
+
+each itemController='post'
+  .row: .col-md-12: .panel.panel-primary
+    .panel-heading
+      button.close click="deletePost this"
+        span aria-hidden='true' title="Delete this post..": .glyphicon.glyphicon-remove-circle
+      postHeader
+    .panel-body
+      .row
+        .col-md-2
+          img.media-object.img-thumbnail{bind-attr src="profilePicture"} alt="profile-picture" style="width: 75;height: 75;"
+        .col-md-10
+          ul.list-unstyled
+            li: .well: format-markdown message
+      if commentCount
+        if commentsVisible
+          button.btn.btn-default.btn-sm{action 'hideCommentsSection'}
+            span.glyphicon.glyphicon-collapse-down
+            = commentButtonLabel
+          each comment in comments itemController='comment'
+            SecSocNet.CommentView contentBinding=comment
+        else
+          button.btn.btn-default.btn-sm{action 'showCommentsSection'}
+            span.glyphicon.glyphicon-expand
+            = commentButtonLabel
+      .row
+        .col-md-12
+          .well: .form role='form'
+            .form-group
+              button.btn{action 'togglePublicComment'}
+                div class={publicComment:glyphicon-eye-open:glyphicon-eye-close :glyphicon}
+              span.form-group = textarea class='form-control markdown' rows='2' valueBinding='commentMessage' placeholder='Comment...'
+            .form-group
+              button.btn-info.form-control{action 'createComment'}
+                'Comment
+    .panel-footer
+</script>
+
+<script type="text/x-emblem" data-template-name="comments">
+.row: .col-md-12
+  .panel.panel-info
+    .panel-heading
+      unless comment.commentPending
+        %span.badge.alert-info pending
+      button.close click="deleteComment comment"
+        span aria-hidden='true' title="Delete this comment..": .glyphicon.glyphicon-remove-circle
+      = comment.commentHeader
+    .panel-body
+      .row
+        .col-md-2
+          img.media-object.img-thumbnail{bind-attr src=comment.profilePicture} alt="profile-picture" style="width: 75;height: 75;"
+        .col-md-10
+          ul.list-unstyled
+            li: .well: format-markdown comment.message
+    .panel-footer
+</script>
+
+<script type="text/x-emblem" data-template-name="profiles">
+.row.well.well-sm
+  .col-md-2
+    = view SecSocNet.PictureDrop currentImage=picture
+  .col-md-10: .row
+    h1 Edit your profile
+.row: .well.well-sm: .input-group.input-group-lg
+  span.input-group-addon: span.glyphicon.glyphicon-search
+  = input class='form-control' type='text' role='search' valueBinding='search'
+.row
+  .table-responsive
+    table.table.table-hover.table-striped style='width: 100%'
+      tr
+        th.col-md-3 style='text-align: right': 'Information
+        th.col-md-5 style='text-align: left': 'Description
+        th.col-md-3: 'Visibility
+        th.col-md-1
+      tr
+        td.col-md-3 style='text-align: right': strong My onion address
+        td.col-md-5 style='text-align: left': = myOnion.content.onion
+        td.col-md-3: ' 
+        td.col-md-1
+      each itemController='profile'
+        unless isHidden
+          tr
+            td.col-md-3 style='text-align: right': strong = key
+            td.col-md-5 style='text-align: left': value
+            td.col-md-3: = view SecSocNet.CircleSelectView circleInit=circlesFromModel selected=selectedCircles width='100%'
+            td.col-md-1
+              button.close click='deleteProfile'
+                span aria-hiden='true' title="Delete this profile..": .glyphicon.glyphicon-remove-circle
+      tr
+        td style='text-align: right': = input id='profileKey' class='form-control' type='text' placeholder='Information' valueBinding='profileKey'
+        td style='text-align: left': = input id='profileValue' class='form-control' type='text' placeholder='Description' valueBinding='profileValue'
+        td: = view SecSocNet.CircleSelectView width='100%'
+        td: button.btn.btn-primary{action 'createProfile'} Add Information
+</script>
+
+<script type="text/x-emblem" data-template-name="contacts">
+.modal.fade#friendRequest tabindex='-1' role='dialog' aria-labelledby="myModalLabel" aria-hidden="true"
+  .modal-dialog: %form role='form'
+    .modal-content
+      .modal-header: h3 Add a friend
+      .modal-body
+        .form-group
+          %label for='contactOnion' Onion Address
+          = input id='contactOnion' class='form-control' type='text' placeholder='...12345678.onion' valueBinding='contactOnion' width='100%'
+        .form-group
+          %label for='contactAlias' Alias
+          = input id='contactAlias' class='form-control' type='text' placeholder='Max Mustermann' valueBinding='contactAlias' width='100%'
+        .form-group
+          %label for='requestMessage' Your Message
+          = textarea id='requestMessage' class='form-control' type='text' placeholder='Hi, please add me as your friend' valueBinding='requestMessage' width='100%'
+      .modal-footer
+        button.btn.btn-primary{action 'createContactRequest'}
+          'Send Contact Request
+        button.btn.btn-primary{action 'followContact'}
+          'Follow This Contact
+        button.btn.btn-default data-dismiss="modal"
+          'Close
+.row
+  .col-md-6
+    .well.well-sm
+      .title style='text-align: center'
+        h3 Manage your contacts
+      .form-group
+        .form.form-inline role='form'
+          .input-group.col-md-offset-1
+            span.input-group-addon: span.glyphicon.glyphicon-search
+            = input class='form-control' type='text' role='search' valueBinding='search'
+          .input-group.col-md-offset-1
+            button.btn.btn-primary data-toggle="modal" data-target="#friendRequest"
+              span.glyphicon.glyphicon-user
+              span.glyphicon.glyphicon-plus
+    ul.media-list.list-group
+      each itemController='contact'
+        unless isSelfContact
+          link-to "contacts.edit" this class="well-list media list-group-item"
+            /%img.media-object.pull-left.img-thumbnail style="float:left;margin:5px;" src=profilePicture
+            profilePictureCall
+            %img.media-object.pull-left.img-thumbnail{bind-attr src="profilePicture"} style="float:left;margin:5px;width:100;height:100"
+            h4.media-heading = alias
+            .media-body
+              strong = nickname
+              p = onion.content.onion
+            if isBlocked
+              %span.badge.alert-danger blocked
+            if isOpen
+              %span.badge.alert-warning open
+            if isPending
+              %span.badge.alert-info pending
+            if isSuccess
+              %span.badge.alert-success contact
+            if isFollowing
+              %span.badge.alert-success following
+  .col-md-6
+      outlet modal
+      .panel.panel-default
+        .panel-heading
+          h3 Selected Contact
+        .panel-body
+          outlet
+</script>
+
+<script type="text/x-emblem" data-template-name="contacts/edit">
+unless id
+  'Select a contact
+else
+  button.close click='deleteContact'
+    span aria-hidden='true' title="Delete this contact..": .glyphicon.glyphicon-remove-circle
+  .h4.media-heading
+    = input value=alias focus-out='updateAlias' enter='updateAlias'
+  .media-body
+    strong: nickname
+    p: onion.content.onion
+    if isOpen
+      strong: request_message
+  .btn-toolbar
+    if isBlocked
+      %span.badge.alert-danger blocked
+    if isOpen
+      %span.badge.alert-warning open
+      button.btn.btn-success type="button" click="acceptContact" accept
+      button.btn.btn-danger type="button" click="blockContact"  block
+    if isPending
+      %span.badge.alert-info pending
+      button.btn.btn-danger type="button" click="blockContact"  block
+      button.btn.btn-primary type="button" click="followContact" follow
+    if isSuccess
+      %span.badge.alert-success contact
+      button.btn.btn-danger click="blockContact"  block
+    if isFollowing
+      %span.badge.alert-success following
+      button.btn.btn-danger click="blockContact" block
+  .voffset
+  .well
+    %legend
+      'Profile
+      table.table.table-hover.table-striped style='width: 100%'
+        tr
+          th.col-md-6 style='text-align: left': 'Information
+          th.col-md-6 style='text-align: left': 'Description
+        each profile in onion.content.profiles
+          unless profile.isHidden
+            tr
+              th.col-md-6 style='text-align: left': strong = profile.key
+              th.col-md-6 style='text-align: left': profile.value
+</script>
+
+<script type="text/x-emblem" data-template-name="circles">
+.row: .col-md-12: .well.well-sm.hidden-xs
+  h1
+    'Manage your circles
+.row.visible-xs
+  .input-group.input-group-lg
+    span.input-group-addon: span.glyphicon.glyphicon-search
+    = input class='form-control' type='text' role='search' valueBinding='search'
+.row
+  .col-md-4.col-xs-5
+    .well.hidden-xs
+      'Drag the circle onto the contact
+    .well.hidden-xs
+      %legend
+        'Circles
+        span.badge
+          = circleCount
+      .list-group
+        each circle in circles itemController='circle'
+          SecSocNet.CircleDrag contentBinding=circle
+      .input-group
+        = input class="form-control" type='text' placeholder='New circle' valueBinding='circleName'
+        .input-group-btn
+          button.btn.btn-default.form-control{action 'createCircle'}
+            span.glyphicon.glyphicon-floppy-disk
+    .visible-xs
+      %legend
+        'Circles
+        span.badge
+          = circleCount
+      .list-group
+        each circle in circles itemController='circle'
+          SecSocNet.CircleDrag contentBinding=circle
+      .input-group
+        = input class="form-control" type='text' placeholder='New circle' valueBinding='circleName'
+        .input-group-btn
+          button.btn.btn-default.form-control{action 'createCircle'}
+            span.glyphicon.glyphicon-floppy-disk
+  .col-md-8.col-xs-7
+    .well.hidden-xs
+      .input-group.input-group-lg
+        span.input-group-addon: span.glyphicon.glyphicon-search
+        = input class='form-control' type='text' role='search' valueBinding='search'
+    .well.hidden-xs
+      %legend
+        'Contacts
+        span.badge
+          = contactCount
+      ul.media-list style="max-height: 500px; overflow-y: scroll"
+        each contact in contacts
+          unless contact.isSelfContact
+            SecSocNet.CircleDrop contentBinding=contact
+    .visible-xs
+      %legend
+        'Contacts
+        span.badge
+          = contactCount
+      ul.media-list style="max-height: 500px; overflow-y: scroll"
+        each contact in contacts
+          unless contact.isSelfContact
+            SecSocNet.CircleDrop contentBinding=contact
+</script>
+
+<script type="text/x-emblem" data-template-name="circles-drag">
+.well-list.list-group-item
+  unless circle.isPublicCircle
+    .hidden-xs: button.close click="deleteCircle circle"
+      span aria-hidden='true' title="Delete this circle..": .glyphicon.glyphicon-remove-circle
+  circle.name
+</script>
+
+<input style="display:none" id='f' type='file' />
+<script type="text/x-emblem" data-template-name="picture-drop">
+if view.hasProfilePicture
+  button.close click="deleteProfilePicture target='view'"
+    span aria-hidden='true' title="Delete profile picture": .glyphicon.glyphicon-remove-circle
+.picture-zone
+  img.media-object.img-thumbnail src=view.imgSource width=view.imgWidth height=view.imgHeight
+.progress#uploadProgress style="display: none"
+  .progress-bar.progress-bar-striped.active#uploadBar role='progressbar' style="width: 0%"
+</script>
+
+<script type="text/x-emblem" data-template-name="circles-drop">
+.well: li.media
+  //%img.media-object.img-thumbnail.pull-left src="img/author.gif"
+  contact.profilePictureCall
+  %img.media-object.pull-left.img-thumbnail{bind-attr src="contact.profilePicture"} style="float:left;margin:5px;width:100;height:100"
+  .media-body
+    .col-md-6.hidden-xs
+      h4.media-heading = contact.alias
+    .col-md-6.visible-xs
+      strong.media-heading = contact.alias    
+    .col-md-6
+      h4.media-heading.hidden-xs Circles
+      /.well
+      each circle in contact.userCreatedCircles
+        %span.badge
+          = circle.name
+          button.close click='deleteCircleformContact contact circle'
+            span aria-hidden='true' title="Delete this circle from contact..": .glyphicon.glyphicon-remove-circle
+</script>
+
+
+
+
+<script src="js/libs/jquery-1.10.2.min.js"></script>
+<script src="js/libs/jquery.cookie.js"></script>
+<script src="js/libs/moment.js"></script>
+<script src="js/libs/emblem.js"></script>
+<script src="js/libs/handlebars-1.3.0.js"></script>
+<script src="js/libs/ember.min.js"></script>
+<script src="js/libs/ember-data.min.js"></script>
+<script src="js/libs/bootstrap.min.js"></script>
+<script src="js/libs/select2.min.js"></script>
+<script src="js/libs/marked.min.js"></script>
+<script src="js/application.js"></script>
+<script src="js/router.js"></script>
+<script src="js/store.js"></script>
+
+<script src="js/controllers/application.js"></script>
+
+<script src="js/controllers/posts.js"></script>
+<script src="js/controllers/post.js"></script>
+<script src="js/controllers/comment.js"></script>
+
+<script src="js/controllers/profiles.js"></script>
+<script src="js/controllers/profile.js"></script>
+
+<script src="js/controllers/circles.js"></script>
+<script src="js/controllers/circle.js"></script>
+
+<script src="js/controllers/contacts.js"></script>
+<script src="js/controllers/contact_edit.js"></script>
+<script src="js/controllers/contact.js"></script>
+
+<script src="js/models/post.js"></script>
+<script src="js/models/comment.js"></script>
+<script src="js/models/profile.js"></script>
+<script src="js/models/circle.js"></script>
+<script src="js/models/author.js"></script>
+<script src="js/models/originator.js"></script>
+<script src="js/models/onion.js"></script>
+<script src="js/models/contact.js"></script>
+
+<script src="js/routes/posts.js"></script>
+<script src="js/routes/profiles.js"></script>
+<script src="js/routes/circles.js"></script>
+<script src="js/routes/contacts.js"></script>
+
+<script src="js/views/circle_chooser.js"></script>
+<script src="js/views/comment_view.js"></script>
+<script src="js/views/circle_drag.js"></script>
+<script src="js/views/circle_drop.js"></script>
+<script src="js/views/profile_circle_drag.js"></script>
+<script src="js/views/profile_circle_drop.js"></script>
+<script src="js/views/picture_drop.js"></script>
+
+<script src="js/views/format_markdown.js"></script>
+
+</body>
+</html>

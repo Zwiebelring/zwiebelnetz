@@ -1,0 +1,4 @@
+client_main
+gorm_tests.go
+testkey.pem../sync/syncerd
+../web/server

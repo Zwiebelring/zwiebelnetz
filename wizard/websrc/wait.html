@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Preparing your Zwiebelnetz...</title>
+    <script type="text/javascript">
+      window.onload = function() {
+        setInterval(function(){
+          checkUrl('http://++ipAddress++:8080/img/lock.png')
+        },5000);
+      };
+      
+      function checkUrl(url) {
+        if(!url || !document.images) return
+        var img = new Image();
+      
+        img.onload = function () {
+          var conf = document.getElementById("configuremessage");
+          var element = document.getElementById("readymessage");
+          conf.innerHTML = "";
+          element.innerHTML = "<p>Your Zwiebelnetz account is now available at<br><a href=\"http://zwiebel-++username++:8080/\">http://zwiebel-++username++:8080/</a></p><p>If the link above is not working try this one<br><a href=\"http://++ipAddress++:8080/\">http://++ipAddress++:8080/</a></p>"
+       };
+      
+        img.onerror = function () {
+          var element = document.getElementById("readymessage");
+          element.innerHTML = "Don't worry, I'm working on it..."
+        }
+        
+        var unix = Math.round(+new Date()/1000);
+        url = url + "?" + unix;
+        img.src = url + "?" + unix;
+      }
+    </script>
+    <style type="text/css">
+      body {
+        margin-top: 80px;
+      }
+      
+      .blocktext {
+        margin-left: auto;
+        margin-right: auto;
+        width: 60%;
+        padding-top: 30px;
+        padding-bottom: 30px;
+        padding-left: 50px;
+        padding-right: 50px;
+        font-family: Helvetica;
+        font-size: 1.5em;
+        background-color: #eeeeee;
+      }
+      
+      a:link {
+        text-decoration: none;
+        color: #428bca;
+      }
+      
+      a:visited {
+        text-decoration: none;
+        color: #428bca;
+      }
+      
+      a:hover {
+        text-decoration: underline;
+        color: #2a6496;
+      }
+      
+      a:active {
+        text-decoration: underline;
+        color: #2a6496;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="blocktext">
+      <p id="configuremessage">Your Raspberry Pi is currently being configured, this will take about a minute.</p>
+      <p id="readymessage">&nbsp;</p>
+    </div>
+  </body>
+</html>
