@@ -37,4 +37,4 @@ set -u
 
 NAME=$1
 
-sudo su -l ssn_${NAME} -c "cd /home/pi/secsocnet/web/;/home/pi/secsocnet/web/server" &
+sudo su -l ssn_${NAME} -c "cd /home/pi/zwiebelnetz/web/;/home/pi/zwiebelnetz/web/server" &

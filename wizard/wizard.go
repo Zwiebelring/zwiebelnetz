@@ -100,7 +100,7 @@ func userHome() string {
 }
 
 func runSyncerd(name string) {
-	syncerd := exec.Command("/home/pi/secsocnet/wizard/start_syncerd.sh", name)
+	syncerd := exec.Command("/home/pi/zwiebelnetz/wizard/start_syncerd.sh", name)
 	syncerd.Stdout = os.Stdout
 	syncerd.Stderr = os.Stderr
 	err := syncerd.Run()
@@ -110,7 +110,7 @@ func runSyncerd(name string) {
 }
 
 func runServer(name string) {
-	server := exec.Command("/home/pi/secsocnet/wizard/start_server.sh", name)
+	server := exec.Command("/home/pi/zwiebelnetz/wizard/start_server.sh", name)
 	server.Stdout = os.Stdout
 	server.Stderr = os.Stderr
 	err := server.Run()
@@ -121,7 +121,7 @@ func runServer(name string) {
 
 func initUser(data userdata) {
 
-	init_script := exec.Command("/home/pi/secsocnet/wizard/init_user.sh", data.name, data.pw)
+	init_script := exec.Command("/home/pi/zwiebelnetz/wizard/init_user.sh", data.name, data.pw)
 	init_script.Stdout = os.Stdout
 	init_script.Stderr = os.Stderr
 	err := init_script.Run()
@@ -131,7 +131,7 @@ func initUser(data userdata) {
 }
 
 func expandFilesystem() {
-	script := exec.Command("/home/pi/secsocnet/wizard/expand_fs.sh")
+	script := exec.Command("/home/pi/zwiebelnetz/wizard/expand_fs.sh")
 	script.Stdout = os.Stdout
 	script.Stderr = os.Stderr
 	err := script.Run()
@@ -141,7 +141,7 @@ func expandFilesystem() {
 }
 
 func changeHostname(name string) {
-	script := exec.Command("/home/pi/secsocnet/wizard/change_hostname.sh", "zwiebel-"+name)
+	script := exec.Command("/home/pi/zwiebelnetz/wizard/change_hostname.sh", "zwiebel-"+name)
 	script.Stdout = os.Stdout
 	script.Stderr = os.Stderr
 	err := script.Run()
@@ -177,7 +177,7 @@ func handler(w http.ResponseWriter, req *http.Request) {
 
 func webserver(data chan userdata, done chan int) {
 
-	http.Handle("/", http.FileServer(http.Dir("/home/pi/secsocnet/wizard/websrc/")))
+	http.Handle("/", http.FileServer(http.Dir("/home/pi/zwiebelnetz/wizard/websrc/")))
 	http.HandleFunc("/script/", handler)
 
 	err := http.ListenAndServe(":80", nil)
