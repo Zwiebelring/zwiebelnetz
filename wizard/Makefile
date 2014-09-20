@@ -36,10 +36,12 @@ build.syncerd:
 	go build -o ../sync/syncerd ../sync/syncerd.go
 build.server:	
 	go build -o ../web/server ../web/server.go
+build.testclient:
+	go build -o ../test/client_main ../test/client_main.go
 build.wizard:	
 	go build wizard.go
 
-install:	build.syncerd build.server build.wizard
+install:	build.syncerd build.server build.testclient build.wizard
 	sudo install -m755 zwiebelnetz /etc/init.d/zwiebelnetz
 	cd /etc/init.d
 	sudo update-rc.d zwiebelnetz defaults
