@@ -41,7 +41,12 @@ build.testclient:
 build.wizard:	
 	go build wizard.go
 
-install:	build.syncerd build.server build.testclient build.wizard
+update.repo:
+	git pull
+
+update:	update.repo build.syncerd build.server build.testclient build.wizard
+
+install:	update
 	sudo install -m755 zwiebelnetz /etc/init.d/zwiebelnetz
 	cd /etc/init.d
 	sudo update-rc.d zwiebelnetz defaults

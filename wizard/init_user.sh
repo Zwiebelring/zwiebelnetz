@@ -58,6 +58,7 @@ chmod ugo+x /home/pi/zwiebelnetz/wizard/start_syncerd.sh
 chmod ugo+x /home/pi/zwiebelnetz/wizard/start_server.sh
 chmod ugo+x /home/pi/zwiebelnetz/wizard/change_hostname.sh
 chmod uog+x /home/pi/zwiebelnetz/wizard/expand_fs.sh
+chmod uog+x /home/pi/zwiebelnetz/wizard/updater.sh
 
 logger -s "INFO: adding ssn user"
 

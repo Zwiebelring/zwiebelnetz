@@ -37,4 +37,7 @@ set -u
 
 NAME=$1
 
+logger -s "INFO: start server"
 sudo su -l ssn_${NAME} -c "cd /home/pi/zwiebelnetz/web/;/home/pi/zwiebelnetz/web/server" &
+
+exit 0

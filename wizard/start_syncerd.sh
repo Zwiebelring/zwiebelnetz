@@ -38,6 +38,6 @@ set -u
 NAME=$1
 
 logger -s "INFO: start syncer"
-su -l ssn_${NAME} -c "/home/pi/zwiebelnetz/sync/syncerd" &
+sudo su -l ssn_${NAME} -c "/home/pi/zwiebelnetz/sync/syncerd" &
 
 exit 0
