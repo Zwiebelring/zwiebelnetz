@@ -57,7 +57,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         li: link-to "circles" | Circles
         li: link-to "contacts" | Contacts
         li: link-to "profiles" | Profile
-        /li: link-to "settings" | Settings
+        li: link-to "settings" | Settings
       ul.nav.navbar-nav.navbar-right
         li: p.navbar-text.navbar-right
         li: button.btn.btn-sm.navbar-btn#logoutButton{action 'logout'} Logout
@@ -408,6 +408,28 @@ if view.hasProfilePicture
             span aria-hidden='true' title="Delete this circle from contact..": .glyphicon.glyphicon-remove-circle
 </script>
 
+</script>
+<script type="text/x-emblem" data-template-name="settings">
+  .container.bs-docs-container.row: .col-md-12: .well
+    h1 Settings
+
+  .container.bs-docs-container.row: .col-md-12: .well
+    .h3 Update
+    p.well style='background: #f7f1cc; color: #815400;'
+      strong Warning! Read and understand before executing update.
+      br
+      'This update function is designed to work with the provided image installed on a Raspberry Pi. If you are running Zwiebelnetz on a different device or if you are running any other services on the Raspberry Pi or have made any custom changes, the update function might cause severe problems and even loss of data!
+    table.table
+      tbody
+        tr
+          td = input class='btn btn-danger' type='button' value='Update Zwiebelnetz' disabled='disabled'
+          td
+            'I read the information and am aware of the risks of updating the system:
+            select name='doUpdate' size='1'
+              option selected='selected' confirm you read the information
+              option yes, update my Zwiebelnetz
+              option no, I better rethink about it
+</script>
 
 
 
