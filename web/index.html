@@ -408,6 +408,17 @@ if view.hasProfilePicture
             span aria-hidden='true' title="Delete this circle from contact..": .glyphicon.glyphicon-remove-circle
 </script>
 
+<!-- Sorry, unable to do this in coffeescript, maybe someone else wants to do this? -->
+<script type="text/javascript">
+function setUpdateButton(value) {
+  button = document.updateform.updateButton;
+  if(value == "yes") {
+    button.disabled = false;
+  }
+  else {
+    button.disabled = true;
+  }
+}
 </script>
 <script type="text/x-emblem" data-template-name="settings">
   .container.bs-docs-container.row: .col-md-12: .well
@@ -415,20 +426,22 @@ if view.hasProfilePicture
 
   .container.bs-docs-container.row: .col-md-12: .well
     .h3 Update
-    p.well style='background: #f7f1cc; color: #815400;'
-      strong Warning! Read and understand before executing update.
-      br
-      'This update function is designed to work with the provided image installed on a Raspberry Pi. If you are running Zwiebelnetz on a different device or if you are running any other services on the Raspberry Pi or have made any custom changes, the update function might cause severe problems and even loss of data!
-    table.table
-      tbody
-        tr
-          td = input class='btn btn-danger' type='button' value='Update Zwiebelnetz' disabled='disabled'
-          td
-            'I read the information and am aware of the risks of updating the system:
-            select name='doUpdate' size='1'
-              option selected='selected' confirm you read the information
-              option yes, update my Zwiebelnetz
-              option no, I better rethink about it
+    div.well style='background: #f7f1cc; color: #815400; border-color: #815400;'
+      p
+        strong Warning! Read and understand before executing update.
+      p This update function is designed to work with the provided <a href="http://zwiebelring.github.io/zwiebelnetz/#download">image</a> installed on a Raspberry Pi. If you are running Zwiebelnetz on a different device or if you are running any other services on the Raspberry Pi or have made any custom changes, the update function might cause severe problems and even loss of data!
+      p To do manual update just stop the webserver and syncer daemon, then pull the latest version from the github repository. Make sure you are on the master branch and either call 'make update' from within the wizard folder to rebuild all binaries or build the webserver and the syncer daemon by yourself. These are located in the web/ and the sync/ folders.
+    form action='/update/' method='post' name='updateform'
+      table.table
+        tbody
+          tr
+            td = input id='updateButton' class='btn btn-primary' type='submit' value='Update Zwiebelnetz' disabled='disabled'
+            td 
+              'I read the information and am aware of the risks of updating the system:
+              select id='doUpdate' size='1' onchange='setUpdateButton(doUpdate.value)'
+                option value='no' selected='selected' confirm you read the information
+                option value='yes' yes, update my Zwiebelnetz
+                option value='no' no, I better rethink about it
 </script>
 
 
