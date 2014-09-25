@@ -54,10 +54,10 @@ fi
 set -u
 
 logger -s "INFO: fixing permissions on start scripts"
-chmod ugo+x /home/pi/secsocnet/wizard/start_syncerd.sh
-chmod ugo+x /home/pi/secsocnet/wizard/start_server.sh
-chmod ugo+x /home/pi/secsocnet/wizard/change_hostname.sh
-chmod uog+x /home/pi/secsocnet/wizard/expand_fs.sh
+chmod ugo+x /home/pi/zwiebelnetz/wizard/start_syncerd.sh
+chmod ugo+x /home/pi/zwiebelnetz/wizard/start_server.sh
+chmod ugo+x /home/pi/zwiebelnetz/wizard/change_hostname.sh
+chmod uog+x /home/pi/zwiebelnetz/wizard/expand_fs.sh
 
 logger -s "INFO: adding ssn user"
 
@@ -89,7 +89,7 @@ onion_addr=$(cat /var/lib/tor/ssn_${NAME}/hostname)
 
 logger -s "initializing database as user ssn_${NAME}..."
 su -l ssn_${NAME} <<EOF
-/home/pi/secsocnet/test/client_main -cmd init -nickname ${NAME} -onion ${onion_addr} -password ${PW} -key \$HOME/private_key
+/home/pi/zwiebelnetz/test/client_main -cmd init -nickname ${NAME} -onion ${onion_addr} -password ${PW} -key \$HOME/private_key
 rm \$HOME/private_key
 EOF
 

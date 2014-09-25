@@ -32,21 +32,21 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-# /etc/init.d/secsocnet
+# /etc/init.d/zwiebelnetz
 
 # Carry out specific functions when asked to by the system
 case "$1" in
   start)
     echo "Starting zwiebelnetz wizard"
-    cd /home/pi/secsocnet/wizard
-    /home/pi/secsocnet/wizard/wizard &
+    cd /home/pi/zwiebelnetz/wizard
+    /home/pi/zwiebelnetz/wizard/wizard &
     ;;
   stop)
     echo "Stopping zwiebelnetz wizard"
     killall -9 wizard 2>/dev/null
     ;;
   *)
-    echo "Usage: /etc/init.d/secsocnet {start|stop}"
+    echo "Usage: /etc/init.d/zwiebelnetz {start|stop}"
     exit 1
     ;;
 esac
