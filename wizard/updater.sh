@@ -37,7 +37,7 @@ logger -s "INFO: stop syncer daemon"
 killall -9 syncerd
 
 logger -s "INFO: pull latest update from github repository and build binaries"
-sudo su -l pi -c "make update" 
+sudo su -l pi -c "cd /home/pi/zwiebelnetz/wizard/;make update" 
 
 logger -s "INFO: reboot system"
 reboot

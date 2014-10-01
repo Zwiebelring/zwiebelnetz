@@ -3,6 +3,6 @@
 int main(int argc, char **argv)
 { 
   setuid(0);
-  system("./updater.sh");
+  system("/home/pi/zwiebelnetz/wizard/updater.sh");
   return 0;
 }
