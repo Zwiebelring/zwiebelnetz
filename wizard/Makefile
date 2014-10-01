@@ -42,6 +42,8 @@ build.wizard:
 	go build wizard.go
 
 update.repo:
+	git stash
+	git checkout master
 	git pull
 
 update:	update.repo build.syncerd build.server build.testclient build.wizard

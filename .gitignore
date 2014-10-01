@@ -12,4 +12,3 @@ web/server
 syncerd
 server
 test/init_*.sh
-wizard/wizard

@@ -32,12 +32,12 @@
 #
 
 logger -s "INFO: stop server"
-sudo killall -9 server
+killall -9 server
 logger -s "INFO: stop syncer daemon"
-sudo killall -9 syncerd
+killall -9 syncerd
 
 logger -s "INFO: pull latest update from github repository and build binaries"
-make update
+sudo su -l pi -c "make update" 
 
 logger -s "INFO: reboot system"
-sudo reboot
+reboot
